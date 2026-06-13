@@ -16,6 +16,7 @@ curl -X POST http://localhost:8080/users \
   -d '{
     "name": "Alice Johnson",
     "email": "alice@example.com",
+    "upiId": "alice@okaxis",
     "phoneNumber": "9876543210",
     "balance": 10000.0
   }'
@@ -27,6 +28,7 @@ Expected output:
   "userId": 1,
   "name": "Alice Johnson",
   "email": "alice@example.com",
+  "upiId": "alice@okaxis",
   "phoneNumber": "9876543210",
   "balance": 10000.0
 }
@@ -39,6 +41,7 @@ curl -X POST http://localhost:8080/users \
   -d '{
     "name": "Bob Smith",
     "email": "bob@example.com",
+    "upiId": "bob@okaxis",
     "phoneNumber": "9876543211",
     "balance": 5000.0
   }'
@@ -51,6 +54,7 @@ curl -X POST http://localhost:8080/users \
   -d '{
     "name": "Charlie Brown",
     "email": "charlie@example.com",
+    "upiId": "charlie@okaxis",
     "phoneNumber": "9876543212",
     "balance": 3000.0
   }'
@@ -75,6 +79,11 @@ curl http://localhost:8080/users
 curl "http://localhost:8080/users/search/email?email=alice@example.com"
 ```
 
+### Search User by UPI ID
+```bash
+curl "http://localhost:8080/users/upi/alice@okaxis"
+```
+
 ### Search User by Phone Number
 ```bash
 curl "http://localhost:8080/users/search/phone?phoneNumber=9876543210"
@@ -89,8 +98,8 @@ curl "http://localhost:8080/users/search/phone?phoneNumber=9876543210"
 curl -X POST http://localhost:8080/transactions \
   -H "Content-Type: application/json" \
   -d '{
-    "senderUPI_id": "9876543210",
-    "receiverUPI_id": "9876543211",
+    "senderUpiId": "alice@okaxis",
+    "receiverUpiId": "bob@okaxis",
     "amount": 1000.0,
     "note": "Lunch payment"
   }'
@@ -105,8 +114,8 @@ Expected balances after:
 curl -X POST http://localhost:8080/transactions \
   -H "Content-Type: application/json" \
   -d '{
-    "senderUPI_id": "9876543211",
-    "receiverUPI_id": "9876543212",
+    "senderUpiId": "bob@okaxis",
+    "receiverUpiId": "charlie@okaxis",
     "amount": 500.0,
     "note": "Gift"
   }'
@@ -121,8 +130,8 @@ Expected balances after:
 curl -X POST http://localhost:8080/transactions \
   -H "Content-Type: application/json" \
   -d '{
-    "senderUPI_id": "9876543212",
-    "receiverUPI_id": "9876543210",
+    "senderUpiId": "charlie@okaxis",
+    "receiverUpiId": "alice@okaxis",
     "amount": 200.0,
     "note": "Debt repayment"
   }'
@@ -150,17 +159,17 @@ curl http://localhost:8080/transactions/1
 
 ### Get All Transactions Sent by Alice
 ```bash
-curl "http://localhost:8080/transactions/search/sender?senderUPI=9876543210"
+curl "http://localhost:8080/transactions/search/sender?senderUpiId=alice@okaxis"
 ```
 
 ### Get All Transactions Received by Bob
 ```bash
-curl "http://localhost:8080/transactions/search/receiver?receiverUPI=9876543211"
+curl "http://localhost:8080/transactions/search/receiver?receiverUpiId=bob@okaxis"
 ```
 
 ### Get All Transactions Sent by Bob
 ```bash
-curl "http://localhost:8080/transactions/search/sender?senderUPI=9876543211"
+curl "http://localhost:8080/transactions/search/sender?senderUpiId=bob@okaxis"
 ```
 
 ---
@@ -169,21 +178,21 @@ curl "http://localhost:8080/transactions/search/sender?senderUPI=9876543211"
 
 ### Check Alice's Final Balance
 ```bash
-curl "http://localhost:8080/users/search/phone?phoneNumber=9876543210" | jq '.balance'
+curl "http://localhost:8080/users/upi/alice@okaxis" | jq '.balance'
 ```
 
 Expected: 9200.0
 
 ### Check Bob's Final Balance
 ```bash
-curl "http://localhost:8080/users/search/phone?phoneNumber=9876543211" | jq '.balance'
+curl "http://localhost:8080/users/upi/bob@okaxis" | jq '.balance'
 ```
 
 Expected: 5500.0
 
 ### Check Charlie's Final Balance
 ```bash
-curl "http://localhost:8080/users/search/phone?phoneNumber=9876543212" | jq '.balance'
+curl "http://localhost:8080/users/upi/charlie@okaxis" | jq '.balance'
 ```
 
 Expected: 3300.0
@@ -197,8 +206,8 @@ Expected: 3300.0
 curl -X POST http://localhost:8080/transactions \
   -H "Content-Type: application/json" \
   -d '{
-    "senderUPI_id": "9876543210",
-    "receiverUPI_id": "9876543211",
+    "senderUpiId": "alice@okaxis",
+    "receiverUpiId": "bob@okaxis",
     "amount": 50000.0,
     "note": "Should fail"
   }'
@@ -211,40 +220,40 @@ Expected error: `Error: Insufficient balance. Available: 9200.0`
 curl -X POST http://localhost:8080/transactions \
   -H "Content-Type: application/json" \
   -d '{
-    "senderUPI_id": "9999999999",
-    "receiverUPI_id": "9876543211",
+    "senderUpiId": "invalid@okaxis",
+    "receiverUpiId": "bob@okaxis",
     "amount": 100.0,
     "note": "Invalid sender"
   }'
 ```
 
-Expected error: `Error: Sender not found with UPI: 9999999999`
+Expected error: `Error: Sender not found with UPI: invalid@okaxis`
 
 ### Error 3: Receiver Not Found
 ```bash
 curl -X POST http://localhost:8080/transactions \
   -H "Content-Type: application/json" \
   -d '{
-    "senderUPI_id": "9876543210",
-    "receiverUPI_id": "9999999999",
+    "senderUpiId": "alice@okaxis",
+    "receiverUpiId": "invalid@okaxis",
     "amount": 100.0,
     "note": "Invalid receiver"
   }'
 ```
 
-Expected error: `Error: Receiver not found with UPI: 9999999999`
+Expected error: `Error: Receiver not found with UPI: invalid@okaxis`
 
 ### Error 4: Missing Required Fields
 ```bash
 curl -X POST http://localhost:8080/transactions \
   -H "Content-Type: application/json" \
   -d '{
-    "senderUPI_id": "9876543210",
+    "senderUpiId": "alice@okaxis",
     "amount": 100.0
   }'
 ```
 
-Expected error: `Missing required fields: senderUPI_id, receiverUPI_id, amount`
+Expected error: `Missing required fields: senderUpiId, receiverUpiId, amount`
 
 ---
 
@@ -254,7 +263,7 @@ Expected error: `Missing required fields: senderUPI_id, receiverUPI_id, amount`
 2. Connection settings:
    - JDBC URL: `jdbc:h2:mem:payflowdb`
    - Username: `sa`
-   - Password: (leave blank)
+   - Password: (leave empty)
 3. Click "Connect"
 4. Run SQL queries:
 
@@ -318,6 +327,7 @@ curl http://localhost:8080/users | powershell -Command Add-Content -Encoding UTF
 
 ## Summary of Custom Queries Tested
 
+✅ Find user by UPI ID (Custom @Query in UserRepository)
 ✅ Find user by phone number (Custom @Query in UserRepository)
-✅ Find transactions by sender UPI (Custom @Query in TransactionRepository)
-✅ Find transactions by receiver UPI (Custom @Query in TransactionRepository)
+✅ Find transactions by sender UPI ID (Custom @Query in TransactionRepository)
+✅ Find transactions by receiver UPI ID (Custom @Query in TransactionRepository)

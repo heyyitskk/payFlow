@@ -21,17 +21,17 @@ public class TransactionController {
     @PostMapping
     public ResponseEntity<?> sendMoney(@RequestBody Map<String, Object> payload) {
         try {
-            String senderUPI = (String) payload.get("senderUPI_id");
-            String receiverUPI = (String) payload.get("receiverUPI_id");
+            String senderUpiId = (String) payload.get("senderUpiId");
+            String receiverUpiId = (String) payload.get("receiverUpiId");
             Double amount = ((Number) payload.get("amount")).doubleValue();
             String note = (String) payload.get("note");
 
-            if (senderUPI == null || receiverUPI == null || amount == null) {
+            if (senderUpiId == null || receiverUpiId == null || amount == null) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body("Missing required fields: senderUPI_id, receiverUPI_id, amount");
+                        .body("Missing required fields: senderUpiId, receiverUpiId, amount");
             }
 
-            Transaction transaction = transactionService.sendMoney(senderUPI, receiverUPI, amount, note);
+            Transaction transaction = transactionService.sendMoney(senderUpiId, receiverUpiId, amount, note);
             return ResponseEntity.status(HttpStatus.CREATED).body(transaction);
 
         } catch (RuntimeException e) {
@@ -57,21 +57,21 @@ public class TransactionController {
     }
 
     @GetMapping("/search/sender")
-    public ResponseEntity<?> getTransactionsBySender(@RequestParam String senderUPI) {
-        List<Transaction> transactions = transactionService.getTransactionsBySender(senderUPI);
+    public ResponseEntity<?> getTransactionsBySender(@RequestParam String senderUpiId) {
+        List<Transaction> transactions = transactionService.getTransactionsBySender(senderUpiId);
         if (transactions.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("No transactions found for sender: " + senderUPI);
+                    .body("No transactions found for sender: " + senderUpiId);
         }
         return ResponseEntity.ok(transactions);
     }
 
     @GetMapping("/search/receiver")
-    public ResponseEntity<?> getTransactionsByReceiver(@RequestParam String receiverUPI) {
-        List<Transaction> transactions = transactionService.getTransactionsByReceiver(receiverUPI);
+    public ResponseEntity<?> getTransactionsByReceiver(@RequestParam String receiverUpiId) {
+        List<Transaction> transactions = transactionService.getTransactionsByReceiver(receiverUpiId);
         if (transactions.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("No transactions found for receiver: " + receiverUPI);
+                    .body("No transactions found for receiver: " + receiverUpiId);
         }
         return ResponseEntity.ok(transactions);
     }

@@ -17,10 +17,10 @@ public class Transaction {
     private Long transactionId;
 
     @Column(nullable = false)
-    private String senderUPI_id;
+    private String senderUpiId;
 
     @Column(nullable = false)
-    private String receiverUPI_id;
+    private String receiverUpiId;
 
     @Column(nullable = false)
     private Double amount;

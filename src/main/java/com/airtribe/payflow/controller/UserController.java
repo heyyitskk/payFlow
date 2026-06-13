@@ -51,6 +51,15 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found with email: " + email);
     }
 
+    @GetMapping("/upi/{upiId}")
+    public ResponseEntity<?> getUserByUpiId(@PathVariable String upiId) {
+        Optional<User> user = userService.getUserByUpiId(upiId);
+        if (user.isPresent()) {
+            return ResponseEntity.ok(user.get());
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found with UPI ID: " + upiId);
+    }
+
     @GetMapping("/search/phone")
     public ResponseEntity<?> getUserByPhoneNumber(@RequestParam String phoneNumber) {
         Optional<User> user = userService.getUserByPhoneNumber(phoneNumber);

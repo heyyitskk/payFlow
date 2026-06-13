@@ -29,12 +29,20 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
+    public Optional<User> getUserByUpiId(String upiId) {
+        return userRepository.findByUpiId(upiId);
+    }
+
     public Optional<User> getUserByPhoneNumber(String phoneNumber) {
         return userRepository.findByPhoneNumber(phoneNumber);
     }
 
     public List<User> getAllUsers() {
         return userRepository.findAll();
+    }
+
+    public List<User> getUsersWithBalanceAbove(Double amount) {
+        return userRepository.findUsersWithBalanceAbove(amount);
     }
 
     public User updateUserBalance(Long userId, Double newBalance) {

@@ -13,7 +13,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByEmail(String email);
 
+    @Query("SELECT u FROM User u WHERE u.upiId = :upiId")
+    Optional<User> findByUpiId(@Param("upiId") String upiId);
+
     @Query("SELECT u FROM User u WHERE u.phoneNumber = :phoneNumber")
     Optional<User> findByPhoneNumber(@Param("phoneNumber") String phoneNumber);
+
+    @Query("SELECT u FROM User u WHERE u.balance > :amount")
+    java.util.List<User> findUsersWithBalanceAbove(@Param("amount") Double amount);
 
 }

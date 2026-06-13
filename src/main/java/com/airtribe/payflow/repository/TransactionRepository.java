@@ -11,10 +11,10 @@ import java.util.List;
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 
-    @Query("SELECT t FROM Transaction t WHERE t.senderUPI_id = :senderUPI")
-    List<Transaction> findBySenderUPI(@Param("senderUPI") String senderUPI);
+    @Query("SELECT t FROM Transaction t WHERE t.senderUpiId = :senderUpiId")
+    List<Transaction> findBySenderUpiId(@Param("senderUpiId") String senderUpiId);
 
-    @Query("SELECT t FROM Transaction t WHERE t.receiverUPI_id = :receiverUPI")
-    List<Transaction> findByReceiverUPI(@Param("receiverUPI") String receiverUPI);
+    @Query("SELECT t FROM Transaction t WHERE t.receiverUpiId = :receiverUpiId")
+    List<Transaction> findByReceiverUpiId(@Param("receiverUpiId") String receiverUpiId);
 
 }
